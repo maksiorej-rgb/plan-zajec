@@ -21,7 +21,6 @@ async def login_and_get_schedule():
         await page.goto(CAMBRIDGE_URL)
         await page.wait_for_timeout(3000)
         
-        # Logowanie Azure
         print("🔐 Klikam 'Zaloguj przez Azure'...")
         await page.click('input[value="Zaloguj przez Azure"]')
         await page.wait_for_timeout(3000)
@@ -38,7 +37,6 @@ async def login_and_get_schedule():
         await page.click('input[type="submit"]')
         await page.wait_for_timeout(5000)
         
-        # Stay signed in?
         for selector in ['input[value="No"]', 'input[value="Nie"]', '#idBtn_Back']:
             if await page.locator(selector).count() > 0:
                 await page.click(selector)
@@ -48,7 +46,6 @@ async def login_and_get_schedule():
         await page.wait_for_timeout(5000)
         await page.screenshot(path="debug_01_logged_in.png")
         
-        # Przejdź do harmonogramu
         print("📅 Przechodzę do harmonogramu...")
         harmonogram_url = await page.evaluate('''
             () => {
@@ -62,7 +59,6 @@ async def login_and_get_schedule():
             await page.goto(f"https://student.szkolafilmowa.pl{harmonogram_url}")
             await page.wait_for_timeout(3000)
         
-        # Kliknij na album (pierwszy link w tabeli)
         print("📋 Klikam na album...")
         album_link = await page.evaluate('''
             () => {
@@ -77,24 +73,21 @@ async def login_and_get_schedule():
         
         await page.screenshot(path="debug_02_schedule.png")
         
-        # Pobierz wszystkie wydarzenia z bieżącego tygodnia
-        print("📊 Pobieram zajęcia z bieżącego tygodnia...")
+        print("📊 Pobieram zajęcia z 12 tygodni...")
         
         all_events = []
         
-        # Pobierz zajęcia z aktualnej strony
         events_week1 = await extract_events_from_page(page)
         all_events.extend(events_week1)
         print(f"  Tydzień 1: {len(events_week1)} zajęć")
         
-        # Przejdź do następnego tygodnia i pobierz
-        for week_num in range(2, 5):  # Pobierz kolejne 3 tygodnie
+        # ZMIANA: 12 tygodni zamiast 4
+        for week_num in range(2, 13):
             try:
-                # Kliknij strzałkę "następny tydzień"
                 next_button = page.locator('a[href="javascript:goForward();"]')
                 if await next_button.count() > 0:
                     await next_button.click()
-                    await page.wait_for_timeout(3000)
+                    await page.wait_for_timeout(2000)
                     
                     events_week = await extract_events_from_page(page)
                     all_events.extend(events_week)
@@ -105,7 +98,6 @@ async def login_and_get_schedule():
         
         await page.screenshot(path="debug_03_final.png")
         
-        # Zapisz HTML
         html_content = await page.content()
         with open("debug_harmonogram_page.html", "w", encoding="utf-8") as f:
             f.write(html_content)
@@ -116,24 +108,14 @@ async def login_and_get_schedule():
         return all_events
 
 async def extract_events_from_page(page):
-    """Wyciągnij wydarzenia z aktualnej strony harmonogramu"""
-    
     events = await page.evaluate('''
         () => {
             const events = [];
             
-            // Mapowanie pozycji left na dzień tygodnia (0=pon, 1=wt, ...)
             const leftToDay = {
-                20: 0,   // Poniedziałek
-                150: 1,  // Wtorek
-                280: 2,  // Środa
-                410: 3,  // Czwartek
-                540: 4,  // Piątek
-                670: 5,  // Sobota
-                800: 6   // Niedziela
+                20: 0, 150: 1, 280: 2, 410: 3, 540: 4, 670: 5, 800: 6
             };
             
-            // Pobierz daty dni tygodnia
             const dates = {};
             document.querySelectorAll('div[style*="position:absolute"]').forEach(div => {
                 const style = div.getAttribute('style') || '';
@@ -142,7 +124,6 @@ async def extract_events_from_page(page):
                 
                 if (leftMatch && topMatch) {
                     const left = parseInt(leftMatch[1]);
-                    // Szukaj daty w formacie DD-MM-YYYY
                     const dateMatch = div.innerText.match(/(\\d{2})-(\\d{2})-(\\d{4})/);
                     if (dateMatch) {
                         const dayIndex = leftToDay[left];
@@ -153,20 +134,15 @@ async def extract_events_from_page(page):
                 }
             });
             
-            console.log('Dates found:', dates);
-            
-            // Pobierz zajęcia z atrybutów onmouseover
             document.querySelectorAll('div[onmouseover]').forEach(div => {
                 const onmouseover = div.getAttribute('onmouseover') || '';
                 const style = div.getAttribute('style') || '';
                 
-                // Wyciągnij pozycję left
                 const leftMatch = style.match(/left:\\s*(\\d+)/);
                 if (!leftMatch) return;
                 
                 const left = parseInt(leftMatch[1]);
                 
-                // Znajdź najbliższą kolumnę
                 let closestLeft = 20;
                 let minDiff = Math.abs(left - 20);
                 for (const l of [20, 150, 280, 410, 540, 670, 800]) {
@@ -180,12 +156,10 @@ async def extract_events_from_page(page):
                 const date = dates[closestLeft];
                 if (!date) return;
                 
-                // Parsuj tooltip z showtip()
                 const tooltipMatch = onmouseover.match(/showtip\\(['"](.*?)['"]\\)/s);
                 if (!tooltipMatch) return;
                 
                 let tooltip = tooltipMatch[1];
-                // Dekoduj HTML entities
                 tooltip = tooltip.replace(/&quot;/g, '"')
                                  .replace(/&lt;/g, '<')
                                  .replace(/&gt;/g, '>')
@@ -196,11 +170,9 @@ async def extract_events_from_page(page):
                 const lines = tooltip.split('\\n').map(l => l.trim()).filter(l => l);
                 
                 if (lines.length >= 3) {
-                    // Format: Nazwa, Prowadzący, Godziny, Sala, ...
                     const title = lines[0];
                     const lecturer = lines[1] || '';
                     
-                    // Szukaj godzin
                     let timeStart = '', timeEnd = '';
                     for (const line of lines) {
                         const timeMatch = line.match(/(\\d{1,2}:\\d{2})-(\\d{1,2}:\\d{2})/);
@@ -211,7 +183,6 @@ async def extract_events_from_page(page):
                         }
                     }
                     
-                    // Szukaj sali
                     let room = '';
                     for (const line of lines) {
                         if (line.startsWith('Sala:')) {
@@ -240,7 +211,6 @@ async def extract_events_from_page(page):
     return events
 
 def create_ics(events):
-    """Utwórz plik ICS z wydarzeniami"""
     cal = Calendar()
     cal.add('prodid', '-//Plan Zajec Szkola Filmowa//PL')
     cal.add('version', '2.0')
@@ -266,7 +236,6 @@ def create_ics(events):
             start_time = event_data['time_start']
             end_time = event_data['time_end']
             
-            # Normalizuj format godzin
             if len(start_time) == 4:
                 start_time = '0' + start_time
             if len(end_time) == 4:
@@ -303,7 +272,7 @@ def create_ics(events):
     return added
 
 async def main():
-    print("🚀 Start synchronizacji...")
+    print("🚀 Start synchronizacji (12 tygodni)...")
     print(f"📧 Email: {AZURE_EMAIL}")
     print(f"🔑 Hasło: {'*' * 8 if AZURE_PASSWORD else 'BRAK!'}")
     
