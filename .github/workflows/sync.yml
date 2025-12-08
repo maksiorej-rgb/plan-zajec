@@ -38,8 +38,11 @@ jobs:
           name: debug-screenshots
           path: |
             *.png
+            *.html
             debug_page.html
           retention-days: 7
+
+          
       
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
