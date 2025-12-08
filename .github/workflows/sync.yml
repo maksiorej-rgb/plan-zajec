@@ -1,0 +1,51 @@
+name: Sync Cambridge Schedule
+
+on:
+  schedule:
+    - cron: '0 5 * * *'  # Codziennie o 5:00 UTC (7:00 czasu polskiego)
+    - cron: '0 17 * * *' # Codziennie o 17:00 UTC (19:00 czasu polskiego)
+  workflow_dispatch:  # Pozwala na ręczne uruchomienie
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+          playwright install-deps
+      
+      - name: Run sync script
+        env:
+          AZURE_EMAIL: ${{ secrets.AZURE_EMAIL }}
+          AZURE_PASSWORD: ${{ secrets.AZURE_PASSWORD }}
+        run: python schedule_sync.py
+      
+      - name: Upload debug screenshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: debug-screenshots
+          path: |
+            *.png
+            debug_page.html
+          retention-days: 7
+      
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
+          publish_branch: gh-pages
+          keep_files: false
+          include_files: plan_zajec.ics
