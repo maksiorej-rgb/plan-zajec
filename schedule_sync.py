@@ -6,7 +6,6 @@ import pytz
 import os
 import re
 
-# Konfiguracja
 CAMBRIDGE_URL = "https://student.szkolafilmowa.pl/palio/html.run?_Instance=cambridge"
 AZURE_EMAIL = os.environ.get("AZURE_EMAIL")
 AZURE_PASSWORD = os.environ.get("AZURE_PASSWORD")
@@ -21,279 +20,224 @@ async def login_and_get_schedule():
         print("🌐 Otwieram stronę Cambridge...")
         await page.goto(CAMBRIDGE_URL)
         await page.wait_for_timeout(3000)
-        await page.screenshot(path="debug_01_start.png")
         
-        # ===== KROK 1: Kliknij "Zaloguj przez Azure" =====
+        # Logowanie Azure
         print("🔐 Klikam 'Zaloguj przez Azure'...")
-        try:
-            await page.click('input[value="Zaloguj przez Azure"]')
-            await page.wait_for_timeout(3000)
-        except Exception as e:
-            print(f"❌ Nie znaleziono przycisku Azure: {e}")
-            await browser.close()
-            return []
+        await page.click('input[value="Zaloguj przez Azure"]')
+        await page.wait_for_timeout(3000)
         
-        # ===== KROK 2: Wpisz email Microsoft =====
         print("📧 Wprowadzam email...")
-        try:
-            await page.wait_for_selector('input[type="email"]', timeout=15000)
-            await page.fill('input[type="email"]', AZURE_EMAIL)
-            await page.click('input[type="submit"]')
-            await page.wait_for_timeout(3000)
-        except Exception as e:
-            print(f"❌ Problem z emailem: {e}")
-            await browser.close()
-            return []
+        await page.wait_for_selector('input[type="email"]', timeout=15000)
+        await page.fill('input[type="email"]', AZURE_EMAIL)
+        await page.click('input[type="submit"]')
+        await page.wait_for_timeout(3000)
         
-        # ===== KROK 3: Wpisz hasło =====
         print("🔑 Wprowadzam hasło...")
-        try:
-            await page.wait_for_selector('input[type="password"]', timeout=15000)
-            await page.fill('input[type="password"]', AZURE_PASSWORD)
-            await page.click('input[type="submit"]')
-            await page.wait_for_timeout(5000)
-        except Exception as e:
-            print(f"❌ Problem z hasłem: {e}")
-            await browser.close()
-            return []
-        
-        # ===== KROK 4: Obsługa "Stay signed in?" =====
-        print("🔄 Sprawdzam 'Stay signed in'...")
-        try:
-            for selector in ['input[value="No"]', 'input[value="Nie"]', '#idBtn_Back']:
-                if await page.locator(selector).count() > 0:
-                    await page.click(selector)
-                    await page.wait_for_timeout(3000)
-                    break
-        except:
-            pass
-        
-        # ===== KROK 5: Czekaj na Cambridge =====
-        print("⏳ Czekam na załadowanie Cambridge...")
+        await page.wait_for_selector('input[type="password"]', timeout=15000)
+        await page.fill('input[type="password"]', AZURE_PASSWORD)
+        await page.click('input[type="submit"]')
         await page.wait_for_timeout(5000)
-        await page.screenshot(path="debug_05_cambridge.png")
         
-        # ===== KROK 6: Przejdź do harmonogramu moich zajęć =====
+        # Stay signed in?
+        for selector in ['input[value="No"]', 'input[value="Nie"]', '#idBtn_Back']:
+            if await page.locator(selector).count() > 0:
+                await page.click(selector)
+                await page.wait_for_timeout(3000)
+                break
+        
+        await page.wait_for_timeout(5000)
+        await page.screenshot(path="debug_01_logged_in.png")
+        
+        # Przejdź do harmonogramu
         print("📅 Przechodzę do harmonogramu...")
-        
-        # Pobierz link z menu JavaScript
         harmonogram_url = await page.evaluate('''
             () => {
                 const html = document.documentElement.innerHTML;
                 const match = html.match(/(\\/palio\\/html\\.run\\?[^"']*_PageID=191[^"']*)/);
-                if (match) {
-                    return match[1].replace(/&amp;/g, '&');
-                }
-                return null;
+                return match ? match[1].replace(/&amp;/g, '&') : null;
             }
         ''')
         
         if harmonogram_url:
-            full_url = f"https://student.szkolafilmowa.pl{harmonogram_url}"
-            print(f"🌐 Przechodzę do: {full_url}")
-            await page.goto(full_url)
+            await page.goto(f"https://student.szkolafilmowa.pl{harmonogram_url}")
             await page.wait_for_timeout(3000)
         
-        await page.screenshot(path="debug_06_harmonogram_list.png")
-        
-        # ===== KROK 7: Kliknij na numer albumu (pierwszy link w tabeli) =====
-        print("📋 Szukam numeru albumu...")
-        
-        # Znajdź pierwszy link w tabeli z klasą "sort"
+        # Kliknij na album (pierwszy link w tabeli)
+        print("📋 Klikam na album...")
         album_link = await page.evaluate('''
             () => {
-                // Szukaj linków w tabeli sort
-                const table = document.querySelector('table.sort');
-                if (table) {
-                    const link = table.querySelector('tbody a.link');
-                    if (link) {
-                        return link.getAttribute('href');
-                    }
-                }
-                
-                // Alternatywnie szukaj linku z _RowID
-                const links = document.querySelectorAll('a[href*="_RowID"]');
-                if (links.length > 0) {
-                    return links[0].getAttribute('href');
-                }
-                
-                return null;
+                const link = document.querySelector('table.sort tbody a.link');
+                return link ? link.getAttribute('href') : null;
             }
         ''')
         
         if album_link:
-            full_url = album_link if album_link.startswith('http') else f"https://student.szkolafilmowa.pl{album_link}"
-            print(f"🎓 Klikam album: {full_url}")
-            await page.goto(full_url)
+            await page.goto(f"https://student.szkolafilmowa.pl{album_link}")
             await page.wait_for_timeout(5000)
-        else:
-            print("⚠️ Nie znaleziono linku do albumu")
         
-        await page.screenshot(path="debug_07_album_page.png")
+        await page.screenshot(path="debug_02_schedule.png")
+        
+        # Pobierz wszystkie wydarzenia z bieżącego tygodnia
+        print("📊 Pobieram zajęcia z bieżącego tygodnia...")
+        
+        all_events = []
+        
+        # Pobierz zajęcia z aktualnej strony
+        events_week1 = await extract_events_from_page(page)
+        all_events.extend(events_week1)
+        print(f"  Tydzień 1: {len(events_week1)} zajęć")
+        
+        # Przejdź do następnego tygodnia i pobierz
+        for week_num in range(2, 5):  # Pobierz kolejne 3 tygodnie
+            try:
+                # Kliknij strzałkę "następny tydzień"
+                next_button = page.locator('a[href="javascript:goForward();"]')
+                if await next_button.count() > 0:
+                    await next_button.click()
+                    await page.wait_for_timeout(3000)
+                    
+                    events_week = await extract_events_from_page(page)
+                    all_events.extend(events_week)
+                    print(f"  Tydzień {week_num}: {len(events_week)} zajęć")
+            except Exception as e:
+                print(f"  ⚠️ Tydzień {week_num}: {e}")
+                break
+        
+        await page.screenshot(path="debug_03_final.png")
         
         # Zapisz HTML
-        html_content = await page.content()
-        with open("debug_album_page.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
-        
-        print(f"📍 Aktualny URL: {page.url}")
-        
-        # ===== KROK 8: Sprawdź czy trzeba wybrać tydzień =====
-        # Może być lista tygodni do wyboru
-        
-        week_links = await page.evaluate('''
-            () => {
-                const links = [];
-                document.querySelectorAll('a').forEach(a => {
-                    const href = a.getAttribute('href') || '';
-                    const text = a.innerText || '';
-                    // Szukaj linków z datami tygodni
-                    if (text.match(/\\d{2}\\.\\d{2}\\.\\d{4}/) || text.match(/tydzień/i) || href.includes('Week')) {
-                        links.push({
-                            href: href,
-                            text: text.trim().substring(0, 100)
-                        });
-                    }
-                });
-                return links;
-            }
-        ''')
-        
-        print(f"📅 Znaleziono {len(week_links)} linków do tygodni")
-        for wl in week_links[:5]:
-            print(f"  - {wl['text'][:50]}")
-        
-        # Jeśli są linki do tygodni, kliknij pierwszy (aktualny tydzień)
-        if week_links:
-            first_week = week_links[0]
-            if first_week['href']:
-                week_url = first_week['href'] if first_week['href'].startswith('http') else f"https://student.szkolafilmowa.pl{first_week['href']}"
-                print(f"📅 Klikam tydzień: {first_week['text'][:30]}")
-                await page.goto(week_url)
-                await page.wait_for_timeout(3000)
-                await page.screenshot(path="debug_08_week.png")
-        
-        # ===== KROK 9: Pobierz dane z harmonogramu =====
-        print("📊 Pobieram dane z harmonogramu...")
-        
-        # Zapisz finalny HTML
         html_content = await page.content()
         with open("debug_harmonogram_page.html", "w", encoding="utf-8") as f:
             f.write(html_content)
         
-        await page.screenshot(path="debug_09_final.png")
-        
-        events = await page.evaluate('''
-            () => {
-                const events = [];
-                
-                // Szukaj wszystkich tabel
-                document.querySelectorAll('table').forEach(table => {
-                    table.querySelectorAll('tr').forEach(row => {
-                        const text = row.innerText || '';
-                        // Szukaj wierszy z godzinami (format HH:MM)
-                        if (text.match(/\\d{1,2}:\\d{2}/)) {
-                            events.push({
-                                raw: text.trim().substring(0, 1000),
-                                html: row.innerHTML.substring(0, 2000)
-                            });
-                        }
-                    });
-                });
-                
-                // Szukaj komórek z danymi zajęć
-                document.querySelectorAll('td').forEach(td => {
-                    const text = td.innerText || '';
-                    // Szukaj komórek z czasem i datą
-                    if (text.match(/\\d{1,2}:\\d{2}/) && text.length > 10 && text.length < 1000) {
-                        events.push({
-                            raw: text.trim(),
-                            html: td.innerHTML.substring(0, 1000)
-                        });
-                    }
-                });
-                
-                // Szukaj divów z zajęciami
-                document.querySelectorAll('div').forEach(div => {
-                    const text = div.innerText || '';
-                    if (text.match(/\\d{1,2}:\\d{2}\\s*[-–]\\s*\\d{1,2}:\\d{2}/) && 
-                        text.length > 15 && text.length < 1000) {
-                        events.push({
-                            raw: text.trim(),
-                            html: div.innerHTML.substring(0, 1000)
-                        });
-                    }
-                });
-                
-                return events;
-            }
-        ''')
-        
-        print(f"📋 Znaleziono {len(events)} potencjalnych wydarzeń")
-        
-        # Debug - wypisz pierwsze wydarzenia
-        for i, event in enumerate(events[:10]):
-            print(f"  Event {i+1}: {event.get('raw', '')[:100]}...")
-        
         await browser.close()
-        return events
+        
+        print(f"📋 Łącznie znaleziono {len(all_events)} zajęć")
+        return all_events
 
-def parse_events(raw_events):
-    """Parsuj surowe dane na strukturyzowane wydarzenia"""
-    parsed = []
-    seen = set()
+async def extract_events_from_page(page):
+    """Wyciągnij wydarzenia z aktualnej strony harmonogramu"""
     
-    for raw in raw_events:
-        text = raw.get('raw', '')
-        
-        # Unikaj duplikatów
-        text_hash = hash(text)
-        if text_hash in seen:
-            continue
-        seen.add(text_hash)
-        
-        # Szukaj wzorców
-        # Czas: "09:00 - 10:30" lub "9:00-10:30"
-        time_match = re.search(r'(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})', text)
-        
-        # Data: "15.01.2024" lub "15.12.2024"
-        date_match = re.search(r'(\d{1,2})\.(\d{1,2})\.(\d{4})', text)
-        
-        if time_match and date_match:
-            # Wyciągnij datę
-            day = date_match.group(1).zfill(2)
-            month = date_match.group(2).zfill(2)
-            year = date_match.group(3)
-            date_str = f"{year}-{month}-{day}"
+    events = await page.evaluate('''
+        () => {
+            const events = [];
             
-            # Wyciągnij tytuł - usuń daty i godziny
-            title = text
-            title = re.sub(r'\d{1,2}\.\d{1,2}\.\d{4}', '', title)
-            title = re.sub(r'\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2}', '', title)
-            title = re.sub(r'\d{1,2}:\d{2}', '', title)
-            title = re.sub(r'\s+', ' ', title).strip()
-            title = title.strip('-–,. \t\n')
+            // Mapowanie pozycji left na dzień tygodnia (0=pon, 1=wt, ...)
+            const leftToDay = {
+                20: 0,   // Poniedziałek
+                150: 1,  // Wtorek
+                280: 2,  // Środa
+                410: 3,  // Czwartek
+                540: 4,  // Piątek
+                670: 5,  // Sobota
+                800: 6   // Niedziela
+            };
             
-            if not title or len(title) < 2:
-                title = "Zajęcia"
+            // Pobierz daty dni tygodnia
+            const dates = {};
+            document.querySelectorAll('div[style*="position:absolute"]').forEach(div => {
+                const style = div.getAttribute('style') || '';
+                const leftMatch = style.match(/left:\\s*(\\d+)/);
+                const topMatch = style.match(/top:\\s*-40/);
+                
+                if (leftMatch && topMatch) {
+                    const left = parseInt(leftMatch[1]);
+                    // Szukaj daty w formacie DD-MM-YYYY
+                    const dateMatch = div.innerText.match(/(\\d{2})-(\\d{2})-(\\d{4})/);
+                    if (dateMatch) {
+                        const dayIndex = leftToDay[left];
+                        if (dayIndex !== undefined) {
+                            dates[left] = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
+                        }
+                    }
+                }
+            });
             
-            # Szukaj sali
-            room_match = re.search(r'(?:sala|room|s\.|pok\.?|lab|studio|aula)\s*[:\.]?\s*([A-Za-z0-9\-/]+)', text, re.IGNORECASE)
-            location = room_match.group(1) if room_match else ''
+            console.log('Dates found:', dates);
             
-            event = {
-                'title': title[:150],
-                'date': date_str,
-                'time_start': f"{time_match.group(1).zfill(2)}:{time_match.group(2)}",
-                'time_end': f"{time_match.group(3).zfill(2)}:{time_match.group(4)}",
-                'location': location,
-                'raw': text[:300]
-            }
+            // Pobierz zajęcia z atrybutów onmouseover
+            document.querySelectorAll('div[onmouseover]').forEach(div => {
+                const onmouseover = div.getAttribute('onmouseover') || '';
+                const style = div.getAttribute('style') || '';
+                
+                // Wyciągnij pozycję left
+                const leftMatch = style.match(/left:\\s*(\\d+)/);
+                if (!leftMatch) return;
+                
+                const left = parseInt(leftMatch[1]);
+                
+                // Znajdź najbliższą kolumnę
+                let closestLeft = 20;
+                let minDiff = Math.abs(left - 20);
+                for (const l of [20, 150, 280, 410, 540, 670, 800]) {
+                    const diff = Math.abs(left - l);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestLeft = l;
+                    }
+                }
+                
+                const date = dates[closestLeft];
+                if (!date) return;
+                
+                // Parsuj tooltip z showtip()
+                const tooltipMatch = onmouseover.match(/showtip\\(['"](.*?)['"]\\)/s);
+                if (!tooltipMatch) return;
+                
+                let tooltip = tooltipMatch[1];
+                // Dekoduj HTML entities
+                tooltip = tooltip.replace(/&quot;/g, '"')
+                                 .replace(/&lt;/g, '<')
+                                 .replace(/&gt;/g, '>')
+                                 .replace(/&amp;/g, '&')
+                                 .replace(/<[^>]*>/g, '\\n')
+                                 .replace(/\\\\n/g, '\\n');
+                
+                const lines = tooltip.split('\\n').map(l => l.trim()).filter(l => l);
+                
+                if (lines.length >= 3) {
+                    // Format: Nazwa, Prowadzący, Godziny, Sala, ...
+                    const title = lines[0];
+                    const lecturer = lines[1] || '';
+                    
+                    // Szukaj godzin
+                    let timeStart = '', timeEnd = '';
+                    for (const line of lines) {
+                        const timeMatch = line.match(/(\\d{1,2}:\\d{2})-(\\d{1,2}:\\d{2})/);
+                        if (timeMatch) {
+                            timeStart = timeMatch[1];
+                            timeEnd = timeMatch[2];
+                            break;
+                        }
+                    }
+                    
+                    // Szukaj sali
+                    let room = '';
+                    for (const line of lines) {
+                        if (line.startsWith('Sala:')) {
+                            room = line.replace('Sala:', '').trim();
+                            break;
+                        }
+                    }
+                    
+                    if (title && timeStart && timeEnd) {
+                        events.push({
+                            title: title,
+                            lecturer: lecturer,
+                            date: date,
+                            time_start: timeStart,
+                            time_end: timeEnd,
+                            room: room
+                        });
+                    }
+                }
+            });
             
-            parsed.append(event)
-            print(f"  ✅ {date_str} {event['time_start']}-{event['time_end']} {title[:40]}")
+            return events;
+        }
+    ''')
     
-    return parsed
+    return events
 
 def create_ics(events):
     """Utwórz plik ICS z wydarzeniami"""
@@ -311,11 +255,22 @@ def create_ics(events):
     for event_data in events:
         try:
             event = Event()
-            event.add('summary', event_data['title'])
+            
+            title = event_data['title']
+            if event_data.get('lecturer'):
+                title = f"{title} ({event_data['lecturer']})"
+            
+            event.add('summary', title)
             
             date_str = event_data['date']
             start_time = event_data['time_start']
             end_time = event_data['time_end']
+            
+            # Normalizuj format godzin
+            if len(start_time) == 4:
+                start_time = '0' + start_time
+            if len(end_time) == 4:
+                end_time = '0' + end_time
             
             start_dt = datetime.strptime(f"{date_str} {start_time}", "%Y-%m-%d %H:%M")
             end_dt = datetime.strptime(f"{date_str} {end_time}", "%Y-%m-%d %H:%M")
@@ -323,19 +278,22 @@ def create_ics(events):
             event.add('dtstart', tz.localize(start_dt))
             event.add('dtend', tz.localize(end_dt))
             
-            if event_data.get('location'):
-                event.add('location', event_data['location'])
+            if event_data.get('room'):
+                event.add('location', event_data['room'])
             
-            event.add('description', 'Źródło: Cambridge - Szkoła Filmowa')
+            description = f"Prowadzący: {event_data.get('lecturer', 'N/A')}"
+            event.add('description', description)
             
-            uid = f"{start_dt.strftime('%Y%m%d%H%M')}-{abs(hash(event_data['title'])) % 100000}@szkolafilmowa"
+            uid = f"{start_dt.strftime('%Y%m%d%H%M')}-{abs(hash(title)) % 100000}@szkolafilmowa"
             event.add('uid', uid)
             
             cal.add_component(event)
             added += 1
             
+            print(f"  ✅ {date_str} {start_time}-{end_time} {event_data['title'][:40]}")
+            
         except Exception as e:
-            print(f"⚠️ Błąd: {e}")
+            print(f"  ⚠️ Błąd: {e}")
             continue
     
     with open(OUTPUT_FILE, 'wb') as f:
@@ -347,7 +305,7 @@ def create_ics(events):
 async def main():
     print("🚀 Start synchronizacji...")
     print(f"📧 Email: {AZURE_EMAIL}")
-    print(f"🔑 Hasło ustawione: {'TAK' if AZURE_PASSWORD else 'NIE!'}")
+    print(f"🔑 Hasło: {'*' * 8 if AZURE_PASSWORD else 'BRAK!'}")
     
     if not AZURE_EMAIL or not AZURE_PASSWORD:
         print("❌ Brak AZURE_EMAIL lub AZURE_PASSWORD!")
@@ -359,27 +317,25 @@ async def main():
             f.write(cal.to_ical())
         return
     
-    raw_events = await login_and_get_schedule()
-    parsed_events = parse_events(raw_events)
+    events = await login_and_get_schedule()
     
-    print(f"📊 Sparsowano {len(parsed_events)} wydarzeń")
+    print(f"📊 Pobrano {len(events)} zajęć")
     
-    if parsed_events:
-        create_ics(parsed_events)
+    if events:
+        create_ics(events)
     else:
-        print("⚠️ Brak wydarzeń - sprawdź debug_harmonogram_page.html")
+        print("⚠️ Brak zajęć - tworzę pusty kalendarz")
         cal = Calendar()
         cal.add('prodid', '-//Plan Zajec//PL')
         cal.add('version', '2.0')
         cal.add('x-wr-calname', 'Plan Zajęć - Szkoła Filmowa')
         
         event = Event()
-        event.add('summary', '⚠️ Sprawdź konfigurację - brak zajęć')
+        event.add('summary', '⚠️ Brak zajęć w tym okresie')
         tz = pytz.timezone('Europe/Warsaw')
         now = datetime.now(tz)
         event.add('dtstart', now)
         event.add('dtend', now + timedelta(hours=1))
-        event.add('description', 'Pobierz pliki debug z GitHub Actions aby sprawdzić problem.')
         event.add('uid', f'info-{now.strftime("%Y%m%d%H%M")}@szkolafilmowa')
         cal.add_component(event)
         

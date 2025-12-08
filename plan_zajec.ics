@@ -1,12 +1,158 @@
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Plan Zajec//PL
+PRODID:-//Plan Zajec Szkola Filmowa//PL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
 X-WR-CALNAME:Plan Zajęć - Szkoła Filmowa
+X-WR-TIMEZONE:Europe/Warsaw
 BEGIN:VEVENT
-SUMMARY:⚠️ Sprawdź konfigurację - brak zajęć
-DTSTART;TZID=Europe/Warsaw:20251208T184928
-DTEND;TZID=Europe/Warsaw:20251208T194928
-UID:info-202512081849@szkolafilmowa
-DESCRIPTION:Pobierz pliki debug z GitHub Actions aby sprawdzić problem.
+SUMMARY:Projekcje filmowe z omówieniem (dr Robert Wichrowski)
+DTSTART;TZID=Europe/Warsaw:20251208T093000
+DTEND;TZID=Europe/Warsaw:20251208T123000
+UID:202512080930-4083@szkolafilmowa
+DESCRIPTION:Prowadzący: dr Robert Wichrowski
+LOCATION:KINO
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Sztuka operatorska (dr hab. Andrzej Ramlau)
+DTSTART;TZID=Europe/Warsaw:20251208T180000
+DTEND;TZID=Europe/Warsaw:20251208T193000
+UID:202512081800-34879@szkolafilmowa
+DESCRIPTION:Prowadzący: dr hab. Andrzej Ramlau
+LOCATION:ONLINE
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Podstawy pracy z kamerą (dr Wojciech Rawecki)
+DTSTART;TZID=Europe/Warsaw:20251209T104500
+DTEND;TZID=Europe/Warsaw:20251209T121500
+UID:202512091045-9846@szkolafilmowa
+DESCRIPTION:Prowadzący: dr Wojciech Rawecki
+LOCATION:S1
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Podstawy pracy z kamerą (dr Wojciech Rawecki)
+DTSTART;TZID=Europe/Warsaw:20251209T090000
+DTEND;TZID=Europe/Warsaw:20251209T103000
+UID:202512090900-9846@szkolafilmowa
+DESCRIPTION:Prowadzący: dr Wojciech Rawecki
+LOCATION:S1
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Psychologia współpracy w grupie (Martyna Harland)
+DTSTART;TZID=Europe/Warsaw:20251208T124500
+DTEND;TZID=Europe/Warsaw:20251208T141500
+UID:202512081245-28341@szkolafilmowa
+DESCRIPTION:Prowadzący: Martyna Harland
+LOCATION:KINO
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Psychologia współpracy w grupie (Martyna Harland)
+DTSTART;TZID=Europe/Warsaw:20251208T143000
+DTEND;TZID=Europe/Warsaw:20251208T160000
+UID:202512081430-28341@szkolafilmowa
+DESCRIPTION:Prowadzący: Martyna Harland
+LOCATION:KINO
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Warsztaty tematyczne. Analiza kadru filmowego (lic. Filip Pasterna
+ k)
+DTSTART;TZID=Europe/Warsaw:20251211T181500
+DTEND;TZID=Europe/Warsaw:20251211T194500
+UID:202512111815-68315@szkolafilmowa
+DESCRIPTION:Prowadzący: lic. Filip Pasternak
+LOCATION:P
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Warsztaty tematyczne. Analiza kadru filmowego (lic. Filip Pasterna
+ k)
+DTSTART;TZID=Europe/Warsaw:20251211T163000
+DTEND;TZID=Europe/Warsaw:20251211T180000
+UID:202512111630-68315@szkolafilmowa
+DESCRIPTION:Prowadzący: lic. Filip Pasternak
+LOCATION:P
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
+DTSTART;TZID=Europe/Warsaw:20251209T141500
+DTEND;TZID=Europe/Warsaw:20251209T154500
+UID:202512091415-97357@szkolafilmowa
+DESCRIPTION:Prowadzący: mgr Marek Brodzki
+LOCATION:K2
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
+DTSTART;TZID=Europe/Warsaw:20251209T123000
+DTEND;TZID=Europe/Warsaw:20251209T140000
+UID:202512091230-97357@szkolafilmowa
+DESCRIPTION:Prowadzący: mgr Marek Brodzki
+LOCATION:K2
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Sztuka operatorska (dr hab. Andrzej Ramlau)
+DTSTART;TZID=Europe/Warsaw:20251215T180000
+DTEND;TZID=Europe/Warsaw:20251215T190000
+UID:202512151800-34879@szkolafilmowa
+DESCRIPTION:Prowadzący: dr hab. Andrzej Ramlau
+LOCATION:ONLINE
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Film współczesny - Spotkania pre-produkcyjne (mgr Agnieszka Fran
+ usiak)
+DTSTART;TZID=Europe/Warsaw:20251218T140000
+DTEND;TZID=Europe/Warsaw:20251218T170000
+UID:202512181400-56433@szkolafilmowa
+DESCRIPTION:Prowadzący: mgr Agnieszka Franusiak
+LOCATION:P
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Film współczesny - Spotkania pre-produkcyjne (mgr Agnieszka Fran
+ usiak)
+DTSTART;TZID=Europe/Warsaw:20251217T090000
+DTEND;TZID=Europe/Warsaw:20251217T170000
+UID:202512170900-56433@szkolafilmowa
+DESCRIPTION:Prowadzący: mgr Agnieszka Franusiak
+LOCATION:P
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Film współczesny - Spotkania pre-produkcyjne (mgr Agnieszka Fran
+ usiak)
+DTSTART;TZID=Europe/Warsaw:20251219T090000
+DTEND;TZID=Europe/Warsaw:20251219T170000
+UID:202512190900-56433@szkolafilmowa
+DESCRIPTION:Prowadzący: mgr Agnieszka Franusiak
+LOCATION:P
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Film współczesny - Spotkania pre-produkcyjne (mgr Agnieszka Fran
+ usiak)
+DTSTART;TZID=Europe/Warsaw:20251216T090000
+DTEND;TZID=Europe/Warsaw:20251216T170000
+UID:202512160900-56433@szkolafilmowa
+DESCRIPTION:Prowadzący: mgr Agnieszka Franusiak
+LOCATION:P
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Warsztat operatorski (dr Mikołaj Jaroszewicz)
+DTSTART;TZID=Europe/Warsaw:20251216T184500
+DTEND;TZID=Europe/Warsaw:20251216T201500
+UID:202512161845-27380@szkolafilmowa
+DESCRIPTION:Prowadzący: dr Mikołaj Jaroszewicz
+LOCATION:S1
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Warsztat operatorski (dr Mikołaj Jaroszewicz)
+DTSTART;TZID=Europe/Warsaw:20251216T170000
+DTEND;TZID=Europe/Warsaw:20251216T183000
+UID:202512161700-27380@szkolafilmowa
+DESCRIPTION:Prowadzący: dr Mikołaj Jaroszewicz
+LOCATION:S1
+END:VEVENT
+BEGIN:VEVENT
+SUMMARY:Master Class (... ...)
+DTSTART;TZID=Europe/Warsaw:20251217T170000
+DTEND;TZID=Europe/Warsaw:20251217T183000
+UID:202512171700-71055@szkolafilmowa
+DESCRIPTION:Prowadzący: ... ...
+LOCATION:KINO
 END:VEVENT
 END:VCALENDAR
