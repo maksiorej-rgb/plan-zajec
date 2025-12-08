@@ -4,9 +4,9 @@ PRODID:-//Plan Zajec//PL
 X-WR-CALNAME:Plan Zajęć - Szkoła Filmowa
 BEGIN:VEVENT
 SUMMARY:⚠️ Sprawdź konfigurację - brak zajęć
-DTSTART;TZID=Europe/Warsaw:20251208T184312
-DTEND;TZID=Europe/Warsaw:20251208T194312
-UID:info-202512081843@szkolafilmowa
-DESCRIPTION:Pobierz debug_harmonogram_page.html z GitHub Actions
+DTSTART;TZID=Europe/Warsaw:20251208T184928
+DTEND;TZID=Europe/Warsaw:20251208T194928
+UID:info-202512081849@szkolafilmowa
+DESCRIPTION:Pobierz pliki debug z GitHub Actions aby sprawdzić problem.
 END:VEVENT
 END:VCALENDAR

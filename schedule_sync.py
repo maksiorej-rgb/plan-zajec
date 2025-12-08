@@ -28,7 +28,6 @@ async def login_and_get_schedule():
         try:
             await page.click('input[value="Zaloguj przez Azure"]')
             await page.wait_for_timeout(3000)
-            await page.screenshot(path="debug_02_azure_login.png")
         except Exception as e:
             print(f"❌ Nie znaleziono przycisku Azure: {e}")
             await browser.close()
@@ -72,107 +71,87 @@ async def login_and_get_schedule():
         # ===== KROK 5: Czekaj na Cambridge =====
         print("⏳ Czekam na załadowanie Cambridge...")
         await page.wait_for_timeout(5000)
-        await page.screenshot(path="debug_05_cambridge_loaded.png")
+        await page.screenshot(path="debug_05_cambridge.png")
         
-        # Zapisz stronę główną
-        html_content = await page.content()
-        with open("debug_main_page.html", "w", encoding="utf-8") as f:
-            f.write(html_content)
+        # ===== KROK 6: Przejdź do harmonogramu moich zajęć =====
+        print("📅 Przechodzę do harmonogramu...")
         
-        # ===== KROK 6: Pobierz URL do harmonogramu z JavaScript =====
-        print("📅 Szukam linku do harmonogramu...")
-        
+        # Pobierz link z menu JavaScript
         harmonogram_url = await page.evaluate('''
             () => {
-                // Szukaj w menu JavaScript
-                const scripts = document.querySelectorAll('script');
-                for (const script of scripts) {
-                    const text = script.innerText || script.textContent;
-                    // Szukaj linku do "Harmonogramy moich zajęć" (PageID=191)
-                    const match = text.match(/Harmonogramy moich zajęć.*?(\\/palio\\/html\\.run\\?[^"]+_PageID=191[^"]+)/);
-                    if (match) {
-                        return match[1].replace(/&amp;/g, '&');
+                const html = document.documentElement.innerHTML;
+                const match = html.match(/(\\/palio\\/html\\.run\\?[^"']*_PageID=191[^"']*)/);
+                if (match) {
+                    return match[1].replace(/&amp;/g, '&');
+                }
+                return null;
+            }
+        ''')
+        
+        if harmonogram_url:
+            full_url = f"https://student.szkolafilmowa.pl{harmonogram_url}"
+            print(f"🌐 Przechodzę do: {full_url}")
+            await page.goto(full_url)
+            await page.wait_for_timeout(3000)
+        
+        await page.screenshot(path="debug_06_harmonogram_list.png")
+        
+        # ===== KROK 7: Kliknij na numer albumu (pierwszy link w tabeli) =====
+        print("📋 Szukam numeru albumu...")
+        
+        # Znajdź pierwszy link w tabeli z klasą "sort"
+        album_link = await page.evaluate('''
+            () => {
+                // Szukaj linków w tabeli sort
+                const table = document.querySelector('table.sort');
+                if (table) {
+                    const link = table.querySelector('tbody a.link');
+                    if (link) {
+                        return link.getAttribute('href');
                     }
                 }
                 
-                // Alternatywnie szukaj w ukrytych divach menu
-                const menuItems = document.querySelectorAll('.jsdomenuitem, [id^="menuItem"]');
-                for (const item of menuItems) {
-                    if (item.innerText.includes('Harmonogramy moich zajęć')) {
-                        // Pobierz onclick lub href
-                        const onclick = item.getAttribute('onclick');
-                        if (onclick) {
-                            const match = onclick.match(/location.*?['"]([^'"]+)['"]/);
-                            if (match) return match[1];
-                        }
-                    }
+                // Alternatywnie szukaj linku z _RowID
+                const links = document.querySelectorAll('a[href*="_RowID"]');
+                if (links.length > 0) {
+                    return links[0].getAttribute('href');
                 }
                 
                 return null;
             }
         ''')
         
-        print(f"📍 Znaleziony URL harmonogramu: {harmonogram_url}")
-        
-        # Jeśli nie znaleziono, spróbuj przez menu hover
-        if not harmonogram_url:
-            print("🔄 Próbuję przez menu rozwijane...")
-            try:
-                # Hover na "Studia"
-                await page.hover('#menuBarItem3')
-                await page.wait_for_timeout(1000)
-                await page.screenshot(path="debug_06_menu_hover.png")
-                
-                # Kliknij "Harmonogramy moich zajęć"
-                await page.click('#menuItem9')
-                await page.wait_for_timeout(5000)
-                await page.screenshot(path="debug_07_harmonogram.png")
-            except Exception as e:
-                print(f"⚠️ Problem z menu: {e}")
-                
-                # Ostatnia próba - szukaj w HTML linków
-                harmonogram_url = await page.evaluate('''
-                    () => {
-                        const html = document.documentElement.innerHTML;
-                        const match = html.match(/(\\/palio\\/html\\.run\\?[^"']*_PageID=191[^"']*)/);
-                        if (match) {
-                            return match[1].replace(/&amp;/g, '&');
-                        }
-                        return null;
-                    }
-                ''')
-        
-        # Jeśli mamy URL, przejdź do niego
-        if harmonogram_url:
-            full_url = harmonogram_url if harmonogram_url.startswith('http') else f"https://student.szkolafilmowa.pl{harmonogram_url}"
-            print(f"🌐 Przechodzę do: {full_url}")
+        if album_link:
+            full_url = album_link if album_link.startswith('http') else f"https://student.szkolafilmowa.pl{album_link}"
+            print(f"🎓 Klikam album: {full_url}")
             await page.goto(full_url)
             await page.wait_for_timeout(5000)
+        else:
+            print("⚠️ Nie znaleziono linku do albumu")
         
-        await page.screenshot(path="debug_08_harmonogram_page.png")
+        await page.screenshot(path="debug_07_album_page.png")
         
-        # Zapisz HTML harmonogramu
+        # Zapisz HTML
         html_content = await page.content()
-        with open("debug_harmonogram_page.html", "w", encoding="utf-8") as f:
+        with open("debug_album_page.html", "w", encoding="utf-8") as f:
             f.write(html_content)
         
         print(f"📍 Aktualny URL: {page.url}")
         
-        # ===== KROK 7: Sprawdź czy trzeba wybrać tydzień =====
-        # Czasami trzeba wybrać zakres dat
+        # ===== KROK 8: Sprawdź czy trzeba wybrać tydzień =====
+        # Może być lista tygodni do wyboru
         
-        # Pobierz wszystkie linki do tygodni jeśli są
         week_links = await page.evaluate('''
             () => {
                 const links = [];
                 document.querySelectorAll('a').forEach(a => {
                     const href = a.getAttribute('href') || '';
                     const text = a.innerText || '';
-                    // Szukaj linków z datami lub "tydzień"
-                    if (href.includes('PageID=191') || text.match(/\\d{2}\\.\\d{2}\\.\\d{4}/)) {
+                    // Szukaj linków z datami tygodni
+                    if (text.match(/\\d{2}\\.\\d{2}\\.\\d{4}/) || text.match(/tydzień/i) || href.includes('Week')) {
                         links.push({
                             href: href,
-                            text: text.trim()
+                            text: text.trim().substring(0, 100)
                         });
                     }
                 });
@@ -180,49 +159,68 @@ async def login_and_get_schedule():
             }
         ''')
         
-        print(f"📋 Znaleziono {len(week_links)} linków do tygodni")
+        print(f"📅 Znaleziono {len(week_links)} linków do tygodni")
+        for wl in week_links[:5]:
+            print(f"  - {wl['text'][:50]}")
         
-        # ===== KROK 8: Pobierz dane z harmonogramu =====
+        # Jeśli są linki do tygodni, kliknij pierwszy (aktualny tydzień)
+        if week_links:
+            first_week = week_links[0]
+            if first_week['href']:
+                week_url = first_week['href'] if first_week['href'].startswith('http') else f"https://student.szkolafilmowa.pl{first_week['href']}"
+                print(f"📅 Klikam tydzień: {first_week['text'][:30]}")
+                await page.goto(week_url)
+                await page.wait_for_timeout(3000)
+                await page.screenshot(path="debug_08_week.png")
+        
+        # ===== KROK 9: Pobierz dane z harmonogramu =====
         print("📊 Pobieram dane z harmonogramu...")
+        
+        # Zapisz finalny HTML
+        html_content = await page.content()
+        with open("debug_harmonogram_page.html", "w", encoding="utf-8") as f:
+            f.write(html_content)
+        
+        await page.screenshot(path="debug_09_final.png")
         
         events = await page.evaluate('''
             () => {
                 const events = [];
                 
-                // Szukaj tabel z zajęciami
+                // Szukaj wszystkich tabel
                 document.querySelectorAll('table').forEach(table => {
                     table.querySelectorAll('tr').forEach(row => {
-                        const text = row.innerText;
-                        // Szukaj wierszy z godzinami
+                        const text = row.innerText || '';
+                        // Szukaj wierszy z godzinami (format HH:MM)
                         if (text.match(/\\d{1,2}:\\d{2}/)) {
                             events.push({
-                                raw: text.trim().substring(0, 500),
-                                html: row.innerHTML.substring(0, 1000)
+                                raw: text.trim().substring(0, 1000),
+                                html: row.innerHTML.substring(0, 2000)
                             });
                         }
                     });
                 });
                 
-                // Szukaj komórek z czasem
+                // Szukaj komórek z danymi zajęć
                 document.querySelectorAll('td').forEach(td => {
                     const text = td.innerText || '';
-                    if (text.match(/\\d{1,2}:\\d{2}\\s*[-–]\\s*\\d{1,2}:\\d{2}/) && text.length > 10 && text.length < 500) {
+                    // Szukaj komórek z czasem i datą
+                    if (text.match(/\\d{1,2}:\\d{2}/) && text.length > 10 && text.length < 1000) {
                         events.push({
                             raw: text.trim(),
-                            html: td.innerHTML.substring(0, 500)
+                            html: td.innerHTML.substring(0, 1000)
                         });
                     }
                 });
                 
-                // Szukaj divów z zajęciami (czasem plan jest w divach)
-                document.querySelectorAll('div, span').forEach(el => {
-                    const text = el.innerText || '';
+                // Szukaj divów z zajęciami
+                document.querySelectorAll('div').forEach(div => {
+                    const text = div.innerText || '';
                     if (text.match(/\\d{1,2}:\\d{2}\\s*[-–]\\s*\\d{1,2}:\\d{2}/) && 
-                        text.match(/\\d{1,2}\\.\\d{1,2}\\.\\d{4}/) &&
-                        text.length > 20 && text.length < 500) {
+                        text.length > 15 && text.length < 1000) {
                         events.push({
                             raw: text.trim(),
-                            html: el.innerHTML.substring(0, 500)
+                            html: div.innerHTML.substring(0, 1000)
                         });
                     }
                 });
@@ -235,7 +233,7 @@ async def login_and_get_schedule():
         
         # Debug - wypisz pierwsze wydarzenia
         for i, event in enumerate(events[:10]):
-            print(f"  Event {i+1}: {event.get('raw', '')[:80]}...")
+            print(f"  Event {i+1}: {event.get('raw', '')[:100]}...")
         
         await browser.close()
         return events
@@ -255,7 +253,7 @@ def parse_events(raw_events):
         seen.add(text_hash)
         
         # Szukaj wzorców
-        # Czas: "09:00 - 10:30"
+        # Czas: "09:00 - 10:30" lub "9:00-10:30"
         time_match = re.search(r'(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})', text)
         
         # Data: "15.01.2024" lub "15.12.2024"
@@ -268,7 +266,7 @@ def parse_events(raw_events):
             year = date_match.group(3)
             date_str = f"{year}-{month}-{day}"
             
-            # Wyciągnij tytuł
+            # Wyciągnij tytuł - usuń daty i godziny
             title = text
             title = re.sub(r'\d{1,2}\.\d{1,2}\.\d{4}', '', title)
             title = re.sub(r'\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2}', '', title)
@@ -280,7 +278,7 @@ def parse_events(raw_events):
                 title = "Zajęcia"
             
             # Szukaj sali
-            room_match = re.search(r'(?:sala|room|s\.|pok\.?|lab|studio)\s*[:\.]?\s*([A-Za-z0-9\-]+)', text, re.IGNORECASE)
+            room_match = re.search(r'(?:sala|room|s\.|pok\.?|lab|studio|aula)\s*[:\.]?\s*([A-Za-z0-9\-/]+)', text, re.IGNORECASE)
             location = room_match.group(1) if room_match else ''
             
             event = {
@@ -328,7 +326,7 @@ def create_ics(events):
             if event_data.get('location'):
                 event.add('location', event_data['location'])
             
-            event.add('description', f"Źródło: Cambridge")
+            event.add('description', 'Źródło: Cambridge - Szkoła Filmowa')
             
             uid = f"{start_dt.strftime('%Y%m%d%H%M')}-{abs(hash(event_data['title'])) % 100000}@szkolafilmowa"
             event.add('uid', uid)
@@ -381,7 +379,7 @@ async def main():
         now = datetime.now(tz)
         event.add('dtstart', now)
         event.add('dtend', now + timedelta(hours=1))
-        event.add('description', 'Pobierz debug_harmonogram_page.html z GitHub Actions')
+        event.add('description', 'Pobierz pliki debug z GitHub Actions aby sprawdzić problem.')
         event.add('uid', f'info-{now.strftime("%Y%m%d%H%M")}@szkolafilmowa')
         cal.add_component(event)
         
