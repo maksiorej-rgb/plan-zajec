@@ -1,0 +1,12 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Plan Zajec//PL
+X-WR-CALNAME:Plan Zajęć - Szkoła Filmowa
+BEGIN:VEVENT
+SUMMARY:⚠️ Synchronizacja wymaga dostosowania
+DTSTART;TZID=Europe/Warsaw:20251208T172956
+DTEND;TZID=Europe/Warsaw:20251208T172956
+UID:test@szkolafilmowa
+DESCRIPTION:Sprawdź logi GitHub Actions i dostosuj selektory
+END:VEVENT
+END:VCALENDAR
