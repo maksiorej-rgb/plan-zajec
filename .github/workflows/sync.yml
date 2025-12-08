@@ -2,13 +2,13 @@ name: Sync Cambridge Schedule
 
 on:
   schedule:
-    - cron: '0 5 * * *'  # Codziennie o 5:00 UTC (7:00 czasu polskiego)
-    - cron: '0 17 * * *' # Codziennie o 17:00 UTC (19:00 czasu polskiego)
-  workflow_dispatch:  # Pozwala na ręczne uruchomienie
+    - cron: '0 5 * * *'
+    - cron: '0 17 * * *'
+  workflow_dispatch:
 
 jobs:
   sync:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04  # ZMIANA: użyj starszego Ubuntu
     
     steps:
       - name: Checkout repository
@@ -23,7 +23,7 @@ jobs:
         run: |
           pip install -r requirements.txt
           playwright install chromium
-          playwright install-deps
+          playwright install-deps chromium
       
       - name: Run sync script
         env:
@@ -48,4 +48,3 @@ jobs:
           publish_dir: ./
           publish_branch: gh-pages
           keep_files: false
-          include_files: plan_zajec.ics
