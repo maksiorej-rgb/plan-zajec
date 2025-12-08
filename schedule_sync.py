@@ -31,7 +31,6 @@ async def login_and_get_schedule():
             await page.screenshot(path="debug_02_azure_login.png")
         except Exception as e:
             print(f"❌ Nie znaleziono przycisku Azure: {e}")
-            await page.screenshot(path="debug_error_no_azure_button.png")
             await browser.close()
             return []
         
@@ -40,13 +39,10 @@ async def login_and_get_schedule():
         try:
             await page.wait_for_selector('input[type="email"]', timeout=15000)
             await page.fill('input[type="email"]', AZURE_EMAIL)
-            await page.screenshot(path="debug_03_email_filled.png")
             await page.click('input[type="submit"]')
             await page.wait_for_timeout(3000)
-            await page.screenshot(path="debug_04_after_email.png")
         except Exception as e:
             print(f"❌ Problem z emailem: {e}")
-            await page.screenshot(path="debug_error_email.png")
             await browser.close()
             return []
         
@@ -55,108 +51,178 @@ async def login_and_get_schedule():
         try:
             await page.wait_for_selector('input[type="password"]', timeout=15000)
             await page.fill('input[type="password"]', AZURE_PASSWORD)
-            await page.screenshot(path="debug_05_password_filled.png")
             await page.click('input[type="submit"]')
             await page.wait_for_timeout(5000)
-            await page.screenshot(path="debug_06_after_password.png")
         except Exception as e:
             print(f"❌ Problem z hasłem: {e}")
-            await page.screenshot(path="debug_error_password.png")
             await browser.close()
             return []
         
         # ===== KROK 4: Obsługa "Stay signed in?" =====
         print("🔄 Sprawdzam 'Stay signed in'...")
         try:
-            for selector in ['input[value="No"]', 'input[value="Nie"]', '#idBtn_Back', 'text=No', 'text=Nie']:
+            for selector in ['input[value="No"]', 'input[value="Nie"]', '#idBtn_Back']:
                 if await page.locator(selector).count() > 0:
                     await page.click(selector)
-                    print(f"✅ Kliknięto: {selector}")
                     await page.wait_for_timeout(3000)
                     break
-            await page.screenshot(path="debug_07_after_stay_signed.png")
-        except Exception as e:
-            print(f"⚠️ Brak 'Stay signed in': {e}")
+        except:
+            pass
         
-        # ===== KROK 5: Czekaj na załadowanie Cambridge =====
+        # ===== KROK 5: Czekaj na Cambridge =====
         print("⏳ Czekam na załadowanie Cambridge...")
         await page.wait_for_timeout(5000)
-        await page.screenshot(path="debug_08_cambridge_loaded.png")
-        
-        current_url = page.url
-        print(f"📍 Aktualny URL: {current_url}")
+        await page.screenshot(path="debug_05_cambridge_loaded.png")
         
         # Zapisz stronę główną
         html_content = await page.content()
         with open("debug_main_page.html", "w", encoding="utf-8") as f:
             f.write(html_content)
         
-        # ===== KROK 6: Kliknij menu "Studia" =====
-        print("📚 Klikam menu 'Studia'...")
-        try:
-            # Znajdź i kliknij "Studia" w menu
-            await page.hover('span:has-text("Studia")')
-            await page.wait_for_timeout(1000)
-            await page.screenshot(path="debug_09_studia_hover.png")
-            
-            # Kliknij "Harmonogramy moich zajęć"
-            print("📅 Klikam 'Harmonogramy moich zajęć'...")
-            await page.click('div:has-text("Harmonogramy moich zajęć")')
-            await page.wait_for_timeout(5000)
-            await page.screenshot(path="debug_10_harmonogram.png")
-        except Exception as e:
-            print(f"⚠️ Problem z menu Studia: {e}")
-            # Alternatywna metoda - bezpośredni link
-            try:
-                print("🔄 Próbuję alternatywnej metody...")
-                # Pobierz link z menu
-                link = await page.get_attribute('text=Harmonogramy moich zajęć', 'href')
-                if link:
-                    await page.goto(link if link.startswith('http') else f"https://student.szkolafilmowa.pl{link}")
-                    await page.wait_for_timeout(5000)
-            except:
-                pass
-            await page.screenshot(path="debug_10_error_menu.png")
+        # ===== KROK 6: Pobierz URL do harmonogramu z JavaScript =====
+        print("📅 Szukam linku do harmonogramu...")
         
-        # Zapisz HTML strony harmonogramu
+        harmonogram_url = await page.evaluate('''
+            () => {
+                // Szukaj w menu JavaScript
+                const scripts = document.querySelectorAll('script');
+                for (const script of scripts) {
+                    const text = script.innerText || script.textContent;
+                    // Szukaj linku do "Harmonogramy moich zajęć" (PageID=191)
+                    const match = text.match(/Harmonogramy moich zajęć.*?(\\/palio\\/html\\.run\\?[^"]+_PageID=191[^"]+)/);
+                    if (match) {
+                        return match[1].replace(/&amp;/g, '&');
+                    }
+                }
+                
+                // Alternatywnie szukaj w ukrytych divach menu
+                const menuItems = document.querySelectorAll('.jsdomenuitem, [id^="menuItem"]');
+                for (const item of menuItems) {
+                    if (item.innerText.includes('Harmonogramy moich zajęć')) {
+                        // Pobierz onclick lub href
+                        const onclick = item.getAttribute('onclick');
+                        if (onclick) {
+                            const match = onclick.match(/location.*?['"]([^'"]+)['"]/);
+                            if (match) return match[1];
+                        }
+                    }
+                }
+                
+                return null;
+            }
+        ''')
+        
+        print(f"📍 Znaleziony URL harmonogramu: {harmonogram_url}")
+        
+        # Jeśli nie znaleziono, spróbuj przez menu hover
+        if not harmonogram_url:
+            print("🔄 Próbuję przez menu rozwijane...")
+            try:
+                # Hover na "Studia"
+                await page.hover('#menuBarItem3')
+                await page.wait_for_timeout(1000)
+                await page.screenshot(path="debug_06_menu_hover.png")
+                
+                # Kliknij "Harmonogramy moich zajęć"
+                await page.click('#menuItem9')
+                await page.wait_for_timeout(5000)
+                await page.screenshot(path="debug_07_harmonogram.png")
+            except Exception as e:
+                print(f"⚠️ Problem z menu: {e}")
+                
+                # Ostatnia próba - szukaj w HTML linków
+                harmonogram_url = await page.evaluate('''
+                    () => {
+                        const html = document.documentElement.innerHTML;
+                        const match = html.match(/(\\/palio\\/html\\.run\\?[^"']*_PageID=191[^"']*)/);
+                        if (match) {
+                            return match[1].replace(/&amp;/g, '&');
+                        }
+                        return null;
+                    }
+                ''')
+        
+        # Jeśli mamy URL, przejdź do niego
+        if harmonogram_url:
+            full_url = harmonogram_url if harmonogram_url.startswith('http') else f"https://student.szkolafilmowa.pl{harmonogram_url}"
+            print(f"🌐 Przechodzę do: {full_url}")
+            await page.goto(full_url)
+            await page.wait_for_timeout(5000)
+        
+        await page.screenshot(path="debug_08_harmonogram_page.png")
+        
+        # Zapisz HTML harmonogramu
         html_content = await page.content()
         with open("debug_harmonogram_page.html", "w", encoding="utf-8") as f:
             f.write(html_content)
         
-        print("📍 URL harmonogramu: " + page.url)
-        await page.screenshot(path="debug_11_harmonogram_loaded.png")
+        print(f"📍 Aktualny URL: {page.url}")
         
-        # ===== KROK 7: Pobierz dane z harmonogramu =====
+        # ===== KROK 7: Sprawdź czy trzeba wybrać tydzień =====
+        # Czasami trzeba wybrać zakres dat
+        
+        # Pobierz wszystkie linki do tygodni jeśli są
+        week_links = await page.evaluate('''
+            () => {
+                const links = [];
+                document.querySelectorAll('a').forEach(a => {
+                    const href = a.getAttribute('href') || '';
+                    const text = a.innerText || '';
+                    // Szukaj linków z datami lub "tydzień"
+                    if (href.includes('PageID=191') || text.match(/\\d{2}\\.\\d{2}\\.\\d{4}/)) {
+                        links.push({
+                            href: href,
+                            text: text.trim()
+                        });
+                    }
+                });
+                return links;
+            }
+        ''')
+        
+        print(f"📋 Znaleziono {len(week_links)} linków do tygodni")
+        
+        # ===== KROK 8: Pobierz dane z harmonogramu =====
         print("📊 Pobieram dane z harmonogramu...")
         
         events = await page.evaluate('''
             () => {
                 const events = [];
                 
-                // Szukaj wszystkich komórek tabeli z zajęciami
+                // Szukaj tabel z zajęciami
                 document.querySelectorAll('table').forEach(table => {
                     table.querySelectorAll('tr').forEach(row => {
                         const text = row.innerText;
-                        // Szukaj wierszy z godzinami (format XX:XX)
+                        // Szukaj wierszy z godzinami
                         if (text.match(/\\d{1,2}:\\d{2}/)) {
                             events.push({
-                                raw: text.trim(),
-                                html: row.innerHTML
+                                raw: text.trim().substring(0, 500),
+                                html: row.innerHTML.substring(0, 1000)
                             });
                         }
                     });
                 });
                 
-                // Szukaj też divów i spanów z danymi
-                document.querySelectorAll('td, div, span').forEach(el => {
-                    const text = el.innerText || '';
-                    // Szukaj wzorca czasu np. "09:00 - 12:00" lub daty "09.12.2024"
-                    if ((text.match(/\\d{1,2}:\\d{2}\\s*[-–]\\s*\\d{1,2}:\\d{2}/) || 
-                         text.match(/\\d{1,2}\\.\\d{1,2}\\.\\d{4}/)) && 
-                        text.length < 1000 && text.length > 10) {
+                // Szukaj komórek z czasem
+                document.querySelectorAll('td').forEach(td => {
+                    const text = td.innerText || '';
+                    if (text.match(/\\d{1,2}:\\d{2}\\s*[-–]\\s*\\d{1,2}:\\d{2}/) && text.length > 10 && text.length < 500) {
                         events.push({
                             raw: text.trim(),
-                            html: el.innerHTML
+                            html: td.innerHTML.substring(0, 500)
+                        });
+                    }
+                });
+                
+                // Szukaj divów z zajęciami (czasem plan jest w divach)
+                document.querySelectorAll('div, span').forEach(el => {
+                    const text = el.innerText || '';
+                    if (text.match(/\\d{1,2}:\\d{2}\\s*[-–]\\s*\\d{1,2}:\\d{2}/) && 
+                        text.match(/\\d{1,2}\\.\\d{1,2}\\.\\d{4}/) &&
+                        text.length > 20 && text.length < 500) {
+                        events.push({
+                            raw: text.trim(),
+                            html: el.innerHTML.substring(0, 500)
                         });
                     }
                 });
@@ -168,8 +234,8 @@ async def login_and_get_schedule():
         print(f"📋 Znaleziono {len(events)} potencjalnych wydarzeń")
         
         # Debug - wypisz pierwsze wydarzenia
-        for i, event in enumerate(events[:5]):
-            print(f"  Event {i+1}: {event.get('raw', '')[:100]}...")
+        for i, event in enumerate(events[:10]):
+            print(f"  Event {i+1}: {event.get('raw', '')[:80]}...")
         
         await browser.close()
         return events
@@ -189,31 +255,24 @@ def parse_events(raw_events):
         seen.add(text_hash)
         
         # Szukaj wzorców
-        # Czas: "09:00 - 10:30" lub "9:00-10:30"
+        # Czas: "09:00 - 10:30"
         time_match = re.search(r'(\d{1,2}):(\d{2})\s*[-–]\s*(\d{1,2}):(\d{2})', text)
         
-        # Data: "15.01.2024" lub "2024-01-15"
-        date_match_pl = re.search(r'(\d{1,2})\.(\d{1,2})\.(\d{4})', text)
-        date_match_iso = re.search(r'(\d{4})-(\d{2})-(\d{2})', text)
+        # Data: "15.01.2024" lub "15.12.2024"
+        date_match = re.search(r'(\d{1,2})\.(\d{1,2})\.(\d{4})', text)
         
-        if time_match:
+        if time_match and date_match:
             # Wyciągnij datę
-            if date_match_pl:
-                date_str = f"{date_match_pl.group(3)}-{date_match_pl.group(2).zfill(2)}-{date_match_pl.group(1).zfill(2)}"
-            elif date_match_iso:
-                date_str = f"{date_match_iso.group(1)}-{date_match_iso.group(2)}-{date_match_iso.group(3)}"
-            else:
-                # Brak daty - pomiń lub użyj dzisiejszej
-                continue
+            day = date_match.group(1).zfill(2)
+            month = date_match.group(2).zfill(2)
+            year = date_match.group(3)
+            date_str = f"{year}-{month}-{day}"
             
-            # Wyciągnij tytuł - wszystko co nie jest datą/godziną
+            # Wyciągnij tytuł
             title = text
-            # Usuń daty i godziny
             title = re.sub(r'\d{1,2}\.\d{1,2}\.\d{4}', '', title)
-            title = re.sub(r'\d{4}-\d{2}-\d{2}', '', title)
             title = re.sub(r'\d{1,2}:\d{2}\s*[-–]\s*\d{1,2}:\d{2}', '', title)
             title = re.sub(r'\d{1,2}:\d{2}', '', title)
-            # Wyczyść
             title = re.sub(r'\s+', ' ', title).strip()
             title = title.strip('-–,. \t\n')
             
@@ -221,7 +280,7 @@ def parse_events(raw_events):
                 title = "Zajęcia"
             
             # Szukaj sali
-            room_match = re.search(r'(?:sala|room|s\.|pok\.?)\s*[:\.]?\s*([A-Za-z0-9\-]+)', text, re.IGNORECASE)
+            room_match = re.search(r'(?:sala|room|s\.|pok\.?|lab|studio)\s*[:\.]?\s*([A-Za-z0-9\-]+)', text, re.IGNORECASE)
             location = room_match.group(1) if room_match else ''
             
             event = {
@@ -230,11 +289,11 @@ def parse_events(raw_events):
                 'time_start': f"{time_match.group(1).zfill(2)}:{time_match.group(2)}",
                 'time_end': f"{time_match.group(3).zfill(2)}:{time_match.group(4)}",
                 'location': location,
-                'raw': text[:500]
+                'raw': text[:300]
             }
             
             parsed.append(event)
-            print(f"  ✅ Sparsowano: {date_str} {event['time_start']}-{event['time_end']} {title[:50]}")
+            print(f"  ✅ {date_str} {event['time_start']}-{event['time_end']} {title[:40]}")
     
     return parsed
 
@@ -269,7 +328,7 @@ def create_ics(events):
             if event_data.get('location'):
                 event.add('location', event_data['location'])
             
-            event.add('description', f"Źródło: Cambridge\nSzkoła Filmowa")
+            event.add('description', f"Źródło: Cambridge")
             
             uid = f"{start_dt.strftime('%Y%m%d%H%M')}-{abs(hash(event_data['title'])) % 100000}@szkolafilmowa"
             event.add('uid', uid)
@@ -278,7 +337,7 @@ def create_ics(events):
             added += 1
             
         except Exception as e:
-            print(f"⚠️ Błąd parsowania wydarzenia: {e}")
+            print(f"⚠️ Błąd: {e}")
             continue
     
     with open(OUTPUT_FILE, 'wb') as f:
@@ -290,14 +349,14 @@ def create_ics(events):
 async def main():
     print("🚀 Start synchronizacji...")
     print(f"📧 Email: {AZURE_EMAIL}")
-    print(f"🔑 Hasło: {'*' * len(AZURE_PASSWORD) if AZURE_PASSWORD else 'BRAK!'}")
+    print(f"🔑 Hasło ustawione: {'TAK' if AZURE_PASSWORD else 'NIE!'}")
     
     if not AZURE_EMAIL or not AZURE_PASSWORD:
-        print("❌ Brak zmiennych AZURE_EMAIL lub AZURE_PASSWORD!")
+        print("❌ Brak AZURE_EMAIL lub AZURE_PASSWORD!")
         cal = Calendar()
         cal.add('prodid', '-//Plan Zajec//PL')
         cal.add('version', '2.0')
-        cal.add('x-wr-calname', 'Plan Zajęć - BŁĄD KONFIGURACJI')
+        cal.add('x-wr-calname', 'BŁĄD - brak konfiguracji')
         with open(OUTPUT_FILE, 'wb') as f:
             f.write(cal.to_ical())
         return
@@ -310,20 +369,20 @@ async def main():
     if parsed_events:
         create_ics(parsed_events)
     else:
-        print("⚠️ Brak wydarzeń - tworzę kalendarz z informacją...")
+        print("⚠️ Brak wydarzeń - sprawdź debug_harmonogram_page.html")
         cal = Calendar()
         cal.add('prodid', '-//Plan Zajec//PL')
         cal.add('version', '2.0')
         cal.add('x-wr-calname', 'Plan Zajęć - Szkoła Filmowa')
         
         event = Event()
-        event.add('summary', '⚠️ Brak zajęć lub problem z synchronizacją')
+        event.add('summary', '⚠️ Sprawdź konfigurację - brak zajęć')
         tz = pytz.timezone('Europe/Warsaw')
         now = datetime.now(tz)
         event.add('dtstart', now)
         event.add('dtend', now + timedelta(hours=1))
-        event.add('description', 'Sprawdź debug-screenshots i debug_harmonogram_page.html w GitHub Actions')
-        event.add('uid', f'info-{now.strftime("%Y%m%d")}@szkolafilmowa')
+        event.add('description', 'Pobierz debug_harmonogram_page.html z GitHub Actions')
+        event.add('uid', f'info-{now.strftime("%Y%m%d%H%M")}@szkolafilmowa')
         cal.add_component(event)
         
         with open(OUTPUT_FILE, 'wb') as f:
