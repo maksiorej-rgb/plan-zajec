@@ -10,7 +10,7 @@ SUMMARY:Film współczesny - realizacja 2 ćwiczenia - POST PRODUKCJA (...
   ...)
 DTSTART;TZID=Europe/Warsaw:20260120T090000
 DTEND;TZID=Europe/Warsaw:20260120T120000
-UID:202601200900-8519@szkolafilmowa
+UID:202601200900-38922@szkolafilmowa
 DESCRIPTION:Prowadzący: ... ...
 LOCATION:Plener
 END:VEVENT
@@ -19,7 +19,7 @@ SUMMARY:Film współczesny - realizacja 2 ćwiczenia - POST PRODUKCJA (...
   ...)
 DTSTART;TZID=Europe/Warsaw:20260119T090000
 DTEND;TZID=Europe/Warsaw:20260119T170000
-UID:202601190900-8519@szkolafilmowa
+UID:202601190900-38922@szkolafilmowa
 DESCRIPTION:Prowadzący: ... ...
 LOCATION:Plener
 END:VEVENT
@@ -27,7 +27,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztaty tematyczne. Preprodukcja (lic. Aleksander Pietrzak)
 DTSTART;TZID=Europe/Warsaw:20260122T123000
 DTEND;TZID=Europe/Warsaw:20260122T140000
-UID:202601221230-70346@szkolafilmowa
+UID:202601221230-34335@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Aleksander Pietrzak
 LOCATION:K1
 END:VEVENT
@@ -35,7 +35,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztaty tematyczne. Preprodukcja (lic. Aleksander Pietrzak)
 DTSTART;TZID=Europe/Warsaw:20260122T141500
 DTEND;TZID=Europe/Warsaw:20260122T154500
-UID:202601221415-70346@szkolafilmowa
+UID:202601221415-34335@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Aleksander Pietrzak
 LOCATION:K1
 END:VEVENT
@@ -43,7 +43,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztaty tematyczne. Preprodukcja (lic. Aleksander Pietrzak)
 DTSTART;TZID=Europe/Warsaw:20260122T174500
 DTEND;TZID=Europe/Warsaw:20260122T191500
-UID:202601221745-70346@szkolafilmowa
+UID:202601221745-34335@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Aleksander Pietrzak
 LOCATION:K1
 END:VEVENT
@@ -51,7 +51,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztaty tematyczne. Preprodukcja (lic. Aleksander Pietrzak)
 DTSTART;TZID=Europe/Warsaw:20260122T160000
 DTEND;TZID=Europe/Warsaw:20260122T173000
-UID:202601221600-70346@szkolafilmowa
+UID:202601221600-34335@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Aleksander Pietrzak
 LOCATION:K1
 END:VEVENT
@@ -59,7 +59,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztat operatorski (dr Mikołaj Jaroszewicz)
 DTSTART;TZID=Europe/Warsaw:20260121T184500
 DTEND;TZID=Europe/Warsaw:20260121T201500
-UID:202601211845-94878@szkolafilmowa
+UID:202601211845-82479@szkolafilmowa
 DESCRIPTION:Prowadzący: dr Mikołaj Jaroszewicz
 LOCATION:S1
 END:VEVENT
@@ -67,7 +67,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztat operatorski (dr Mikołaj Jaroszewicz)
 DTSTART;TZID=Europe/Warsaw:20260121T170000
 DTEND;TZID=Europe/Warsaw:20260121T183000
-UID:202601211700-94878@szkolafilmowa
+UID:202601211700-82479@szkolafilmowa
 DESCRIPTION:Prowadzący: dr Mikołaj Jaroszewicz
 LOCATION:S1
 END:VEVENT
@@ -75,7 +75,7 @@ BEGIN:VEVENT
 SUMMARY:Analiza ćwiczenia 2-minutowego (mgr Jędrzej Gorski)
 DTSTART;TZID=Europe/Warsaw:20260128T141500
 DTEND;TZID=Europe/Warsaw:20260128T154500
-UID:202601281415-35999@szkolafilmowa
+UID:202601281415-25886@szkolafilmowa
 DESCRIPTION:Prowadzący: mgr Jędrzej Gorski
 LOCATION:K1
 END:VEVENT
@@ -83,7 +83,7 @@ BEGIN:VEVENT
 SUMMARY:Analiza ćwiczenia 2-minutowego (mgr Jędrzej Gorski)
 DTSTART;TZID=Europe/Warsaw:20260128T093000
 DTEND;TZID=Europe/Warsaw:20260128T114500
-UID:202601280930-35999@szkolafilmowa
+UID:202601280930-25886@szkolafilmowa
 DESCRIPTION:Prowadzący: mgr Jędrzej Gorski
 LOCATION:K1
 END:VEVENT
@@ -91,7 +91,7 @@ BEGIN:VEVENT
 SUMMARY:Analiza ćwiczenia 2-minutowego (mgr Jędrzej Gorski)
 DTSTART;TZID=Europe/Warsaw:20260128T114500
 DTEND;TZID=Europe/Warsaw:20260128T140000
-UID:202601281145-35999@szkolafilmowa
+UID:202601281145-25886@szkolafilmowa
 DESCRIPTION:Prowadzący: mgr Jędrzej Gorski
 LOCATION:K1
 END:VEVENT
@@ -99,7 +99,7 @@ BEGIN:VEVENT
 SUMMARY:Analiza ćwiczenia 2-minutowego (lic. Filip Pasternak)
 DTSTART;TZID=Europe/Warsaw:20260128T141500
 DTEND;TZID=Europe/Warsaw:20260128T154500
-UID:202601281415-29922@szkolafilmowa
+UID:202601281415-66588@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Filip Pasternak
 LOCATION:K1
 END:VEVENT
@@ -107,7 +107,7 @@ BEGIN:VEVENT
 SUMMARY:Analiza ćwiczenia 2-minutowego (lic. Filip Pasternak)
 DTSTART;TZID=Europe/Warsaw:20260128T114500
 DTEND;TZID=Europe/Warsaw:20260128T140000
-UID:202601281145-29922@szkolafilmowa
+UID:202601281145-66588@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Filip Pasternak
 LOCATION:K1
 END:VEVENT
@@ -115,7 +115,7 @@ BEGIN:VEVENT
 SUMMARY:Analiza ćwiczenia 2-minutowego (lic. Filip Pasternak)
 DTSTART;TZID=Europe/Warsaw:20260128T093000
 DTEND;TZID=Europe/Warsaw:20260128T114500
-UID:202601280930-29922@szkolafilmowa
+UID:202601280930-66588@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Filip Pasternak
 LOCATION:K1
 END:VEVENT
@@ -123,7 +123,7 @@ BEGIN:VEVENT
 SUMMARY:Sztuka operatorska (dr hab. Andrzej Ramlau)
 DTSTART;TZID=Europe/Warsaw:20260126T180000
 DTEND;TZID=Europe/Warsaw:20260126T190000
-UID:202601261800-61503@szkolafilmowa
+UID:202601261800-9874@szkolafilmowa
 DESCRIPTION:Prowadzący: dr hab. Andrzej Ramlau
 LOCATION:ONLINE
 END:VEVENT
@@ -131,7 +131,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztaty tematyczne. Preprodukcja (lic. Aleksander Pietrzak)
 DTSTART;TZID=Europe/Warsaw:20260129T111500
 DTEND;TZID=Europe/Warsaw:20260129T124500
-UID:202601291115-70346@szkolafilmowa
+UID:202601291115-34335@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Aleksander Pietrzak
 LOCATION:K2
 END:VEVENT
@@ -139,7 +139,7 @@ BEGIN:VEVENT
 SUMMARY:Warsztaty tematyczne. Preprodukcja (lic. Aleksander Pietrzak)
 DTSTART;TZID=Europe/Warsaw:20260129T093000
 DTEND;TZID=Europe/Warsaw:20260129T110000
-UID:202601290930-70346@szkolafilmowa
+UID:202601290930-34335@szkolafilmowa
 DESCRIPTION:Prowadzący: lic. Aleksander Pietrzak
 LOCATION:K2
 END:VEVENT
@@ -147,7 +147,7 @@ BEGIN:VEVENT
 SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
 DTSTART;TZID=Europe/Warsaw:20260127T123000
 DTEND;TZID=Europe/Warsaw:20260127T140000
-UID:202601271230-81119@szkolafilmowa
+UID:202601271230-26022@szkolafilmowa
 DESCRIPTION:Prowadzący: mgr Marek Brodzki
 LOCATION:K1
 END:VEVENT
@@ -155,7 +155,7 @@ BEGIN:VEVENT
 SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
 DTSTART;TZID=Europe/Warsaw:20260127T141500
 DTEND;TZID=Europe/Warsaw:20260127T154500
-UID:202601271415-81119@szkolafilmowa
+UID:202601271415-26022@szkolafilmowa
 DESCRIPTION:Prowadzący: mgr Marek Brodzki
 LOCATION:K1
 END:VEVENT
@@ -163,7 +163,7 @@ BEGIN:VEVENT
 SUMMARY:Film współczesny - ćwiczenie nr 2 (dr Maciej Ślesicki)
 DTSTART;TZID=Europe/Warsaw:20260126T110000
 DTEND;TZID=Europe/Warsaw:20260126T160000
-UID:202601261100-50101@szkolafilmowa
+UID:202601261100-66147@szkolafilmowa
 DESCRIPTION:Prowadzący: dr Maciej Ślesicki
 LOCATION:KINO
 END:VEVENT
@@ -172,7 +172,7 @@ SUMMARY:Wprowadzenie do scenariusza filmu krótkometrażowego (dr Maciej
  Ślesicki)
 DTSTART;TZID=Europe/Warsaw:20260130T100000
 DTEND;TZID=Europe/Warsaw:20260130T160000
-UID:202601301000-43723@szkolafilmowa
+UID:202601301000-36018@szkolafilmowa
 DESCRIPTION:Prowadzący: dr Maciej Ślesicki
 LOCATION:K1
 END:VEVENT
@@ -180,7 +180,7 @@ BEGIN:VEVENT
 SUMMARY:Psychologia współpracy w grupie (Martyna Harland)
 DTSTART;TZID=Europe/Warsaw:20260205T140000
 DTEND;TZID=Europe/Warsaw:20260205T170000
-UID:202602051400-10421@szkolafilmowa
+UID:202602051400-21754@szkolafilmowa
 DESCRIPTION:Prowadzący: Martyna Harland
 LOCATION:KINO
 END:VEVENT
@@ -188,7 +188,7 @@ BEGIN:VEVENT
 SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
 DTSTART;TZID=Europe/Warsaw:20260203T141500
 DTEND;TZID=Europe/Warsaw:20260203T154500
-UID:202602031415-81119@szkolafilmowa
+UID:202602031415-26022@szkolafilmowa
 DESCRIPTION:Prowadzący: mgr Marek Brodzki
 LOCATION:K2
 END:VEVENT
@@ -196,7 +196,7 @@ BEGIN:VEVENT
 SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
 DTSTART;TZID=Europe/Warsaw:20260203T123000
 DTEND;TZID=Europe/Warsaw:20260203T140000
-UID:202602031230-81119@szkolafilmowa
+UID:202602031230-26022@szkolafilmowa
 DESCRIPTION:Prowadzący: mgr Marek Brodzki
 LOCATION:K2
 END:VEVENT
@@ -204,7 +204,7 @@ BEGIN:VEVENT
 SUMMARY:Film współczesny (dr Maciej Ślesicki)
 DTSTART;TZID=Europe/Warsaw:20260218T110000
 DTEND;TZID=Europe/Warsaw:20260218T160000
-UID:202602181100-76493@szkolafilmowa
+UID:202602181100-85672@szkolafilmowa
 DESCRIPTION:Prowadzący: dr Maciej Ślesicki
 LOCATION:KINO
 END:VEVENT
