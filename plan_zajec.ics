@@ -6,26 +6,10 @@ METHOD:PUBLISH
 X-WR-CALNAME:Plan Zajęć - Szkoła Filmowa
 X-WR-TIMEZONE:Europe/Warsaw
 BEGIN:VEVENT
-SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
-DTSTART;TZID=Europe/Warsaw:20260203T141500
-DTEND;TZID=Europe/Warsaw:20260203T154500
-UID:202602031415-93567@szkolafilmowa
-DESCRIPTION:Prowadzący: mgr Marek Brodzki
-LOCATION:K2
-END:VEVENT
-BEGIN:VEVENT
-SUMMARY:Język filmu i wizualizacja (mgr Marek Brodzki)
-DTSTART;TZID=Europe/Warsaw:20260203T123000
-DTEND;TZID=Europe/Warsaw:20260203T140000
-UID:202602031230-93567@szkolafilmowa
-DESCRIPTION:Prowadzący: mgr Marek Brodzki
-LOCATION:K2
-END:VEVENT
-BEGIN:VEVENT
 SUMMARY:Film współczesny (dr Maciej Ślesicki)
 DTSTART;TZID=Europe/Warsaw:20260218T110000
 DTEND;TZID=Europe/Warsaw:20260218T160000
-UID:202602181100-89151@szkolafilmowa
+UID:202602181100-2129@szkolafilmowa
 DESCRIPTION:Prowadzący: dr Maciej Ślesicki
 LOCATION:KINO
 END:VEVENT
