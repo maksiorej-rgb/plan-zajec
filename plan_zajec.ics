@@ -1,11 +1,16 @@
 BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//Plan Zajec//PL
+PRODID:-//Plan Zajec Szkola Filmowa//PL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
 X-WR-CALNAME:Plan Zajęć - Szkoła Filmowa
+X-WR-TIMEZONE:Europe/Warsaw
 BEGIN:VEVENT
-SUMMARY:⚠️ Brak zajęć w tym okresie
-DTSTART;TZID=Europe/Warsaw:20260213T065557
-DTEND;TZID=Europe/Warsaw:20260213T075557
-UID:info-202602130655@szkolafilmowa
+SUMMARY:Film współczesny (dr Maciej Ślesicki)
+DTSTART;TZID=Europe/Warsaw:20260218T110000
+DTEND;TZID=Europe/Warsaw:20260218T160000
+UID:202602181100-44403@szkolafilmowa
+DESCRIPTION:Prowadzący: dr Maciej Ślesicki
+LOCATION:KINO
 END:VEVENT
 END:VCALENDAR
